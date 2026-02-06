@@ -1,4 +1,12 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+MediBilbao Salud — Nutri Companion (MVP)
+
+- Frontend: Next.js (App Router) PWA mobile-first (Vercel)
+- Backend: Supabase (Auth + Postgres + Storage + RLS + Realtime)
+
+Docs:
+- `docs/PRD.md`
+- `docs/SETUP.md`
+- `docs/QA_CHECKLIST.md`
 
 ## Getting Started
 

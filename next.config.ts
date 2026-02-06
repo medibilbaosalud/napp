@@ -1,7 +1,21 @@
 import type { NextConfig } from "next";
+import withPWAInit from "next-pwa";
+import { fileURLToPath } from "url";
+import path from "path";
+
+const configDir = path.dirname(fileURLToPath(import.meta.url));
+
+const withPWA = withPWAInit({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+});
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [],
+  },
+  outputFileTracingRoot: configDir,
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

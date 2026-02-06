@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f7f4ea;
+  --bg-elevated: #fffdf7;
+  --surface: #ffffff;
+  --surface-soft: #f4f7f1;
+  --text: #15261f;
+  --text-muted: #4f665c;
+  --accent: #2f8f6a;
+  --accent-strong: #1f7655;
+  --accent-soft: #d9f0e4;
+  --line: #d9e1d7;
+  --danger: #b13e3e;
+  --warning: #d18f2d;
+  --shadow-sm: 0 6px 20px rgba(18, 48, 37, 0.06);
+  --shadow-md: 0 14px 34px rgba(16, 48, 36, 0.11);
+  --radius-sm: 0.8rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-newsreader);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(47, 143, 106, 0.14), transparent 40%),
+    radial-gradient(circle at 100% 20%, rgba(209, 143, 45, 0.16), transparent 40%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-manrope), "Segoe UI", sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-newsreader), serif;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: rgba(47, 143, 106, 0.18);
+}
+
+.app-shell {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0)) var(--bg);
+}
+
+.glass-panel {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(217, 225, 215, 0.9);
 }

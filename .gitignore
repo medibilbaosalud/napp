@@ -2,6 +2,10 @@
 
 # dependencies
 /node_modules
+
+# next-pwa / workbox build outputs
+/public/sw.js
+/public/workbox-*.js
 /.pnp
 .pnp.*
 .yarn/*
