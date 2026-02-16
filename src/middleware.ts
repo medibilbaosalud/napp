@@ -8,12 +8,16 @@ import { createServerClient } from "@supabase/ssr";
  */
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUBAPASE_URL ??
+    process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUBAPASE_ANON_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error(
-      "Missing Supabase env vars in middleware. Expected NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      "Missing env vars in middleware. Expected NEXT_PUBLIC_SUBAPASE_URL and NEXT_PUBLIC_SUBAPASE_ANON_KEY (or SUPABASE aliases).",
     );
     return response;
   }
