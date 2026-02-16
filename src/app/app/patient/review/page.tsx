@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Flag, Sparkles } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getWeekStartMonday, formatDateISO } from "@/lib/date/week";
 import { Topbar } from "@/components/ui/Topbar";
@@ -13,22 +15,33 @@ import { cn } from "@/lib/utils/cn";
 const obstacleOptions = [
   { code: "time", label: "Tiempo" },
   { code: "social", label: "Social" },
-  { code: "stress", label: "Estrés" },
-  { code: "planning", label: "Planificación" },
+  { code: "stress", label: "Estres" },
+  { code: "planning", label: "Planificacion" },
   { code: "emotional", label: "Hambre emocional" },
-  { code: "sleep", label: "Sueño" },
+  { code: "sleep", label: "Sueno" },
 ];
 
 type Difficulty = "good" | "normal" | "hard";
+
+const container = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { staggerChildren: 0.05, delayChildren: 0.03 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
 
 export default function WeeklyReviewPage() {
   const router = useRouter();
   const supabase = React.useMemo(() => createSupabaseBrowserClient(), []);
 
-  const weekStartIso = React.useMemo(
-    () => formatDateISO(getWeekStartMonday(new Date())),
-    [],
-  );
+  const weekStartIso = React.useMemo(() => formatDateISO(getWeekStartMonday(new Date())), []);
 
   const [difficulty, setDifficulty] = React.useState<Difficulty>("normal");
   const [obstacles, setObstacles] = React.useState<string[]>([]);
@@ -61,7 +74,7 @@ export default function WeeklyReviewPage() {
         setMsg(error.message);
         return;
       }
-      setMsg("Revisión enviada. Tu nutricionista responderá con 2–3 ajustes.");
+      setMsg("Revision enviada. Tu nutricionista respondera con 2-3 ajustes.");
       setTimeout(() => {
         router.push("/app/patient/chat");
         router.refresh();
@@ -72,90 +85,103 @@ export default function WeeklyReviewPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50">
-      <Topbar title="Revisión semanal" />
-      <div className="px-4 py-4 space-y-4">
-        <Card>
-          <div className="text-sm font-semibold text-slate-900">Semana</div>
-          <div className="text-sm text-slate-600">{weekStartIso}</div>
-          <p className="mt-2 text-xs text-slate-500">
-            1–2 minutos. Sin culpa: buscamos ajustar, no juzgar.
-          </p>
-        </Card>
+    <div className="min-h-dvh app-shell pb-28">
+      <Topbar title="Revision semanal" subtitle="Ajustamos el plan en base a la semana real" />
 
-        <Card>
-          <div className="text-sm font-semibold text-slate-900">Mi semana fue</div>
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            {(
-              [
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-4 px-4 py-4">
+        <motion.div variants={item}>
+          <Card className="relative overflow-hidden">
+            <motion.div
+              className="absolute -right-7 -top-7 h-24 w-24 rounded-full bg-[var(--accent-soft)]/70"
+              animate={{ scale: [1, 1.18, 1], opacity: [0.4, 0.72, 0.4] }}
+              transition={{ duration: 7, repeat: Infinity }}
+            />
+            <div className="relative">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">Semana</div>
+              <div className="mt-1 text-base font-semibold text-[var(--text)]">{weekStartIso}</div>
+              <p className="mt-2 text-xs text-[var(--text-muted)]">1-2 minutos. Buscamos ajustar, no juzgar.</p>
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <Card>
+            <div className="text-sm font-semibold text-[var(--text)]">Mi semana fue</div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {([
                 ["good", "Buena"],
                 ["normal", "Normal"],
-                ["hard", "Difícil"],
-              ] as const
-            ).map(([v, label]) => (
-              <button
-                key={v}
-                onClick={() => setDifficulty(v)}
-                className={cn(
-                  "rounded-xl border px-3 py-2 text-sm",
-                  difficulty === v
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-900"
-                    : "border-slate-200 bg-white text-slate-700",
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </Card>
+                ["hard", "Dificil"],
+              ] as const).map(([v, label]) => (
+                <button
+                  key={v}
+                  onClick={() => setDifficulty(v)}
+                  className={cn(
+                    "rounded-[var(--radius-sm)] border px-3 py-2 text-sm font-medium",
+                    difficulty === v
+                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                      : "border-[var(--line)] bg-white text-[var(--text-muted)]",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </Card>
+        </motion.div>
 
-        <Card>
-          <div className="text-sm font-semibold text-slate-900">
-            Obstáculos (elige hasta 3)
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {obstacleOptions.map((o) => (
-              <button
-                key={o.code}
-                onClick={() => toggle(o.code)}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs",
-                  obstacles.includes(o.code)
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 bg-white text-slate-700",
-                )}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-slate-500">
-            Si ya tienes 3, desmarca uno para cambiar.
-          </p>
-        </Card>
+        <motion.div variants={item}>
+          <Card>
+            <div className="text-sm font-semibold text-[var(--text)]">Obstaculos (elige hasta 3)</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {obstacleOptions.map((o) => (
+                <button
+                  key={o.code}
+                  onClick={() => toggle(o.code)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-medium",
+                    obstacles.includes(o.code)
+                      ? "border-[var(--text)] bg-[var(--text)] text-white"
+                      : "border-[var(--line)] bg-white text-[var(--text-muted)]",
+                  )}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-[var(--text-muted)]">Si ya tienes 3, desmarca uno para cambiar.</p>
+          </Card>
+        </motion.div>
 
-        <Card className="space-y-3">
-          <div>
-            <div className="text-sm font-semibold text-slate-900">1 victoria</div>
-            <Input value={win} onChange={(e) => setWin(e.target.value)} placeholder="Ej: mantuve el desayuno 5 días" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-slate-900">1 ajuste</div>
-            <Input value={adjust} onChange={(e) => setAdjust(e.target.value)} placeholder="Ej: cenas más fáciles entre semana" />
-          </div>
-        </Card>
+        <motion.div variants={item}>
+          <Card className="space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-[var(--text)]">1 victoria</div>
+              <Input value={win} onChange={(e) => setWin(e.target.value)} placeholder="Ej: mantuve el desayuno 5 dias" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-[var(--text)]">1 ajuste</div>
+              <Input value={adjust} onChange={(e) => setAdjust(e.target.value)} placeholder="Ej: cenas mas faciles entre semana" />
+            </div>
+          </Card>
+        </motion.div>
 
         {msg ? (
-          <Card>
-            <p className="text-sm text-slate-700">{msg}</p>
-          </Card>
+          <motion.div variants={item}>
+            <Card className={cn("py-3", msg.includes("enviada") ? "border-[var(--accent)]/30 bg-[var(--accent-soft)]/45" : "border-[var(--danger)]/30 bg-red-50")}>
+              <p className={cn("text-sm", msg.includes("enviada") ? "text-[var(--text)]" : "text-[var(--danger)]")}>{msg}</p>
+            </Card>
+          </motion.div>
         ) : null}
 
-        <Button className="w-full" onClick={submit} disabled={busy}>
-          Enviar revisión
-        </Button>
-      </div>
+        <motion.div variants={item}>
+          <Button className="w-full" onClick={submit} disabled={busy}>
+            <Flag className="h-4 w-4" />
+            Enviar revision
+            <Sparkles className="h-4 w-4" />
+          </Button>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
-

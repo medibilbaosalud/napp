@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import Link from "next/link";
+import { Inbox, Link2 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Topbar } from "@/components/ui/Topbar";
 import { Card } from "@/components/ui/Card";
@@ -72,42 +73,46 @@ export default function NutriRequestsPage() {
 
   return (
     <div className="pb-8">
-      <Topbar title="Solicitudes" />
+      <Topbar title="Solicitudes" subtitle="Vinculaciones pendientes con pacientes" />
       <div className="mx-auto max-w-md space-y-4 px-4 py-4">
         <Card className="flex items-center justify-between">
           <div>
-            <div className="text-sm font-semibold text-slate-900">Nutri</div>
-            <p className="mt-1 text-xs text-slate-500">
-              Acepta para crear care_team + thread (atómico).
+            <div className="text-sm font-semibold text-[var(--text)]">Flujo de vinculacion</div>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              Al aceptar se crea care_team + thread en el mismo paso.
             </p>
           </div>
-          <Link
-            href="/app/nutri/patients"
-            className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
-          >
-            Ver pacientes
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/app/nutri/errors">
+              <Button variant="secondary">Errores</Button>
+            </Link>
+            <Link href="/app/nutri/patients" className="text-sm font-semibold text-[var(--accent)] hover:text-[var(--accent-strong)]">
+              Ver pacientes
+            </Link>
+          </div>
         </Card>
 
         {error ? (
-          <Card className="border-red-200 bg-red-50">
-            <p className="text-sm text-red-700">{error}</p>
+          <Card className="border-[var(--danger)]/30 bg-red-50">
+            <p className="text-sm text-[var(--danger)]">{error}</p>
           </Card>
         ) : null}
 
         <Card>
           {loading ? (
-            <p className="text-sm text-slate-600">Cargando…</p>
+            <p className="text-sm text-[var(--text-muted)]">Cargando...</p>
           ) : rows.length ? (
             <ul className="space-y-3">
               {rows.map((r) => (
-                <li key={r.id} className="rounded-xl border border-slate-200 bg-white p-3">
-                  <div className="text-sm font-semibold text-slate-900">
+                <li key={r.id} className="rounded-[var(--radius-md)] border border-[var(--line)] bg-white p-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
+                    <Link2 className="h-4 w-4 text-[var(--accent)]" />
                     {r.patient_display_name || r.patient_email || r.patient_id}
                   </div>
                   {r.patient_note ? (
-                    <p className="mt-1 text-sm text-slate-600">{r.patient_note}</p>
+                    <p className="mt-1 text-sm text-[var(--text-muted)]">{r.patient_note}</p>
                   ) : null}
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">{new Date(r.created_at).toLocaleString()}</p>
                   <div className="mt-3 flex gap-2">
                     <Button onClick={() => accept(r.id)}>Aceptar</Button>
                     <Button variant="secondary" onClick={() => reject(r.id)}>
@@ -118,7 +123,10 @@ export default function NutriRequestsPage() {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-slate-600">No hay solicitudes pendientes.</p>
+            <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+              <Inbox className="h-4 w-4" />
+              No hay solicitudes pendientes.
+            </div>
           )}
         </Card>
       </div>

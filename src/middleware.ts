@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+/**
+ * Middleware handles authentication and route protection.
+ * It ensures that users are authenticated before accessing /app routes
+ * and prevents authenticated users from accessing login/signup pages.
+ */
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -13,6 +18,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // Initialize Supabase client for middleware
   const supabase = createServerClient(
     supabaseUrl,
     supabaseAnonKey,
@@ -30,6 +36,7 @@ export async function middleware(request: NextRequest) {
     },
   );
 
+  // Check authentication status
   let isAuthed = false;
   try {
     const { data } = await supabase.auth.getUser();
@@ -46,13 +53,15 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/reset-password") ||
     path.startsWith("/auth/callback");
 
+  // Redirect to login if accessing protected /app routes without auth
   if (path.startsWith("/app") && !isAuthed) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", path);
+    url.searchParams.set("next", `${path}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
 
+  // Redirect to /app if already authenticated and trying to access auth pages
   if (isAuthRoute && isAuthed) {
     const url = request.nextUrl.clone();
     url.pathname = "/app";
@@ -63,6 +72,9 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+/**
+ * Configure routes that the middleware should run on.
+ */
 export const config = {
   matcher: ["/app/:path*", "/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"],
 };

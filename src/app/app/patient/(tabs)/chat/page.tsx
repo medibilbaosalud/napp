@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
+import { Bot, MessageSquareHeart, Sparkles } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Topbar } from "@/components/ui/Topbar";
 import { Card } from "@/components/ui/Card";
@@ -12,6 +14,20 @@ import { cn } from "@/lib/utils/cn";
 type ThreadRow = { id: string; patient_id: string; nutri_id: string };
 type MessageRow = { id: string; sender_id: string; body: string; created_at: string };
 
+const container = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { staggerChildren: 0.05, delayChildren: 0.03 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
+
 export default function PatientChatPage() {
   const supabase = React.useMemo(() => createSupabaseBrowserClient(), []);
   const [userId, setUserId] = React.useState<string | null>(null);
@@ -20,9 +36,7 @@ export default function PatientChatPage() {
   const [text, setText] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [mode, setMode] = React.useState<"nutri" | "assistant">("nutri");
-  const [assistantMsgs, setAssistantMsgs] = React.useState<
-    Array<{ role: "user" | "assistant"; content: string }>
-  >([]);
+  const [assistantMsgs, setAssistantMsgs] = React.useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
   const bottomRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
@@ -109,18 +123,12 @@ export default function PatientChatPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ message: body }),
       });
-      const data = (await res.json().catch(() => ({}))) as {
-        answer?: string;
-        error?: string;
-      };
+      const data = (await res.json().catch(() => ({}))) as { answer?: string; error?: string };
       if (!res.ok) {
         setError(data?.error ?? "Error");
         return;
       }
-      setAssistantMsgs((prev) => [
-        ...prev,
-        { role: "assistant", content: data?.answer ?? "No tengo respuesta." },
-      ]);
+      setAssistantMsgs((prev) => [...prev, { role: "assistant", content: data?.answer ?? "No tengo respuesta." }]);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error");
     }
@@ -129,121 +137,116 @@ export default function PatientChatPage() {
   const canChat = Boolean(thread);
 
   return (
-    <div className="pb-24">
-      <Topbar title="Chat / Revisión" />
-      <div className="px-4 py-4 space-y-4">
+    <div className="pb-28">
+      <Topbar title="Chat / Revision" subtitle="Asincrono con tu nutri y soporte IA" />
+
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-4 px-4 py-4">
         {!canChat ? (
-          <Card>
-            <div className="text-sm font-semibold text-slate-900">Sin chat todavía</div>
-            <p className="mt-1 text-sm text-slate-600">
-              El chat se activa cuando tu nutricionista acepta la vinculación.
-            </p>
-          </Card>
+          <motion.div variants={item}>
+            <Card>
+              <div className="text-sm font-semibold text-[var(--text)]">Sin chat todavia</div>
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
+                El chat se activa cuando tu nutricionista acepta la vinculacion.
+              </p>
+            </Card>
+          </motion.div>
         ) : (
           <>
-            <Card className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-semibold text-slate-900">Modo</div>
-                <p className="mt-1 text-xs text-slate-500">
-                  Respuestas del nutri: aprox. 24–48h laborables.
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  className={cn(
-                    "rounded-xl border px-3 py-2 text-sm",
-                    mode === "nutri"
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-slate-200 bg-white text-slate-700",
-                  )}
-                  onClick={() => setMode("nutri")}
-                >
-                  Nutricionista
-                </button>
-                <button
-                  className={cn(
-                    "rounded-xl border px-3 py-2 text-sm",
-                    mode === "assistant"
-                      ? "border-emerald-700 bg-emerald-700 text-white"
-                      : "border-slate-200 bg-white text-slate-700",
-                  )}
-                  onClick={() => setMode("assistant")}
-                >
-                  Asistente
-                </button>
-              </div>
-            </Card>
-
-            {mode === "assistant" ? (
-              <Card className="border-emerald-200 bg-emerald-50">
-                <p className="text-sm text-emerald-900">
-                  El asistente responde solo sobre tu plan y contenidos de la app.
-                  No sustituye a tu nutricionista ni a una consulta médica.
-                </p>
+            <motion.div variants={item}>
+              <Card className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-[var(--text)]">Modo de respuesta</div>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">Nutri: 24-48h laborables. IA: instantaneo sobre tu plan.</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    className={cn(
+                      "rounded-[var(--radius-sm)] border px-3 py-2 text-sm font-medium",
+                      mode === "nutri"
+                        ? "border-[var(--text)] bg-[var(--text)] text-white"
+                        : "border-[var(--line)] bg-white text-[var(--text-muted)]",
+                    )}
+                    onClick={() => setMode("nutri")}
+                  >
+                    <MessageSquareHeart className="mr-1 inline-block h-4 w-4" />
+                    Nutri
+                  </button>
+                  <button
+                    className={cn(
+                      "rounded-[var(--radius-sm)] border px-3 py-2 text-sm font-medium",
+                      mode === "assistant"
+                        ? "border-[var(--accent)] bg-[var(--accent)] text-white"
+                        : "border-[var(--line)] bg-white text-[var(--text-muted)]",
+                    )}
+                    onClick={() => setMode("assistant")}
+                  >
+                    <Bot className="mr-1 inline-block h-4 w-4" />
+                    IA
+                  </button>
+                </div>
               </Card>
-            ) : null}
+            </motion.div>
 
-            <Card>
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-slate-900">Mensajes</div>
-                <Link
-                  href="/app/patient/review"
-                  className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
-                >
-                  Enviar revisión semanal
-                </Link>
-              </div>
-              <div className="mt-3 max-h-[48vh] space-y-2 overflow-auto rounded-xl bg-slate-50 p-3">
-                {mode === "nutri"
-                  ? messages.map((m) => (
-                      <div
-                        key={m.id}
-                        className={cn(
-                          "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
-                          m.sender_id === userId
-                            ? "ml-auto bg-slate-900 text-white"
-                            : "bg-white text-slate-900 border border-slate-200",
-                        )}
-                      >
-                        {m.body}
-                      </div>
-                    ))
-                  : assistantMsgs.map((m, idx) => (
-                      <div
-                        key={idx}
-                        className={cn(
-                          "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
-                          m.role === "user"
-                            ? "ml-auto bg-slate-900 text-white"
-                            : "bg-white text-slate-900 border border-emerald-200",
-                        )}
-                      >
-                        {m.content}
-                      </div>
-                    ))}
-                <div ref={bottomRef} />
-              </div>
-
-              {error ? (
-                <p className="mt-3 text-sm text-red-700">{error}</p>
+            <AnimatePresence>
+              {mode === "assistant" ? (
+                <motion.div variants={item} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  <Card className="border-[var(--accent)]/20 bg-[var(--accent-soft)]/45">
+                    <p className="text-sm text-[var(--text)]">
+                      El asistente responde solo sobre tu plan y contenidos de la app. No sustituye a tu nutricionista ni a una consulta medica.
+                    </p>
+                  </Card>
+                </motion.div>
               ) : null}
+            </AnimatePresence>
 
-              <div className="mt-3 flex gap-2">
-                <Input
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder={
-                    mode === "assistant" ? "Pregunta sobre tu plan…" : "Escribe un mensaje…"
-                  }
-                />
-                <Button onClick={mode === "assistant" ? sendToAssistant : sendToNutri}>
-                  Enviar
-                </Button>
-              </div>
-            </Card>
+            <motion.div variants={item}>
+              <Card>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-[var(--text)]">Mensajes</div>
+                  <Link href="/app/patient/review" className="text-sm font-semibold text-[var(--accent)] hover:text-[var(--accent-strong)]">
+                    Enviar revision semanal
+                  </Link>
+                </div>
+
+                <div className="mt-3 max-h-[48vh] space-y-2 overflow-auto rounded-[var(--radius-sm)] bg-[var(--surface-soft)] p-3">
+                  {(mode === "nutri" ? messages.map((m) => ({ id: m.id, own: m.sender_id === userId, content: m.body })) : assistantMsgs.map((m, idx) => ({ id: String(idx), own: m.role === "user", content: m.content }))).map((msg) => (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={cn(
+                        "max-w-[85%] rounded-2xl border px-3 py-2 text-sm",
+                        msg.own
+                          ? "ml-auto border-[var(--text)] bg-[var(--text)] text-white"
+                          : mode === "assistant"
+                            ? "border-[var(--accent)]/30 bg-white text-[var(--text)]"
+                            : "border-[var(--line)] bg-white text-[var(--text)]",
+                      )}
+                    >
+                      {msg.content}
+                    </motion.div>
+                  ))}
+                  <div ref={bottomRef} />
+                </div>
+
+                {error ? <p className="mt-3 text-sm text-[var(--danger)]">{error}</p> : null}
+
+                <div className="mt-3 flex gap-2">
+                  <Input
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder={mode === "assistant" ? "Pregunta sobre tu plan..." : "Escribe un mensaje..."}
+                  />
+                  <Button onClick={mode === "assistant" ? sendToAssistant : sendToNutri}>
+                    <Sparkles className="h-4 w-4" />
+                    Enviar
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
           </>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

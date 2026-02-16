@@ -1,8 +1,10 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { MessageSquare, Sparkles } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Topbar } from "@/components/ui/Topbar";
 import { Card } from "@/components/ui/Card";
@@ -14,10 +16,24 @@ type ThreadRow = { id: string; patient_id: string; nutri_id: string };
 type MessageRow = { id: string; sender_id: string; body: string; created_at: string };
 
 const quickReplies = [
-  "Gracias por enviarlo. Esta semana ajustaremos 2 cosas y vemos cómo responde.",
-  "Perfecto. Quédate con una acción mínima diaria; el objetivo es consistencia, no perfección.",
-  "Lo he visto. Te propongo un cambio simple para reducir fricción.",
+  "Gracias por enviarlo. Esta semana ajustaremos 2 cosas y vemos como responde.",
+  "Perfecto. Quedate con una accion minima diaria; el objetivo es consistencia.",
+  "Lo he visto. Te propongo un cambio simple para reducir friccion.",
 ];
+
+const container = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { staggerChildren: 0.05, delayChildren: 0.03 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
 
 export default function NutriChatPage() {
   const { patientId } = useParams<{ patientId: string }>();
@@ -92,63 +108,73 @@ export default function NutriChatPage() {
 
   return (
     <div className="pb-8">
-      <Topbar title="Chat" />
-      <div className="mx-auto max-w-md space-y-4 px-4 py-4">
-        <Card>
-          <Link
-            href={`/app/nutri/patients/${patientId}`}
-            className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
-          >
-            ← Paciente
-          </Link>
-        </Card>
+      <Topbar title="Chat" subtitle="Comunicate con contexto y respuestas rapidas" />
+      <motion.div variants={container} initial="hidden" animate="show" className="mx-auto max-w-md space-y-4 px-4 py-4">
+        <motion.div variants={item}>
+          <Card>
+            <Link href={`/app/nutri/patients/${patientId}`} className="text-sm font-semibold text-[var(--accent)] hover:text-[var(--accent-strong)]">
+              {"<-"} Paciente
+            </Link>
+          </Card>
+        </motion.div>
 
         {!thread ? (
-          <Card>
-            <p className="text-sm text-slate-600">
-              No hay thread activo (¿vinculación pendiente?).
-            </p>
-          </Card>
+          <motion.div variants={item}>
+            <Card>
+              <p className="text-sm text-[var(--text-muted)]">No hay thread activo (vinculacion pendiente).</p>
+            </Card>
+          </motion.div>
         ) : (
-          <Card>
-            <div className="text-sm font-semibold text-slate-900">Mensajes</div>
-            <div className="mt-3 max-h-[52vh] space-y-2 overflow-auto rounded-xl bg-slate-50 p-3">
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={cn(
-                    "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
-                    m.sender_id === userId
-                      ? "ml-auto bg-emerald-700 text-white"
-                      : "bg-white text-slate-900 border border-slate-200",
-                  )}
-                >
-                  {m.body}
-                </div>
-              ))}
-              <div ref={bottomRef} />
-            </div>
-            {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
+          <motion.div variants={item}>
+            <Card>
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
+                <MessageSquare className="h-4 w-4 text-[var(--accent)]" />
+                Mensajes
+              </div>
+              <div className="mt-3 max-h-[52vh] space-y-2 overflow-auto rounded-[var(--radius-sm)] bg-[var(--surface-soft)] p-3">
+                {messages.map((m) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    key={m.id}
+                    className={cn(
+                      "max-w-[85%] rounded-2xl border px-3 py-2 text-sm",
+                      m.sender_id === userId
+                        ? "ml-auto border-[var(--accent)] bg-[var(--accent)] text-white"
+                        : "border-[var(--line)] bg-white text-[var(--text)]",
+                    )}
+                  >
+                    {m.body}
+                  </motion.div>
+                ))}
+                <div ref={bottomRef} />
+              </div>
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              {quickReplies.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => setText(q)}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-700 hover:bg-slate-100"
-                >
-                  Respuesta rápida
-                </button>
-              ))}
-            </div>
+              {error ? <p className="mt-3 text-sm text-[var(--danger)]">{error}</p> : null}
 
-            <div className="mt-3 flex gap-2">
-              <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Escribe…" />
-              <Button onClick={send}>Enviar</Button>
-            </div>
-          </Card>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {quickReplies.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => setText(q)}
+                    className="rounded-full border border-[var(--line)] bg-white px-3 py-1 text-xs text-[var(--text-muted)] hover:border-[var(--accent)]/40"
+                  >
+                    Respuesta rapida
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-3 flex gap-2">
+                <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Escribe..." />
+                <Button onClick={send}>
+                  <Sparkles className="h-4 w-4" />
+                  Enviar
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

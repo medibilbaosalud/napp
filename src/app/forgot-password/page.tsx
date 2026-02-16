@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import Link from "next/link";
@@ -29,10 +29,9 @@ export default function ForgotPasswordPage() {
   async function onSubmit(values: FormValues) {
     setError(null);
     const origin = window.location.origin;
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-      values.email,
-      { redirectTo: `${origin}/auth/callback?next=/reset-password` },
-    );
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(values.email, {
+      redirectTo: `${origin}/auth/callback?next=/reset-password`,
+    });
     if (resetError) {
       setError(resetError.message);
       return;
@@ -42,21 +41,21 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Restablecer contraseña"
-      subtitle="Te enviaremos un email con un enlace para crear una nueva contraseña."
+      title="Restablecer contrasena"
+      subtitle="Te enviaremos un enlace para crear una nueva contrasena."
     >
       {sent ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-          Si ese email existe, recibirás un enlace en unos minutos.
+        <div className="rounded-[var(--radius-md)] border border-[var(--accent)]/25 bg-[var(--accent-soft)]/45 p-4 text-sm text-[var(--text)]">
+          Si ese email existe, recibiras un enlace en unos minutos.
         </div>
       ) : (
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Email</label>
+            <label className="text-sm font-medium text-[var(--text)]">Email</label>
             <Input type="email" autoComplete="email" {...form.register("email")} />
           </div>
           {error ? (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-[var(--radius-sm)] border border-[var(--danger)]/30 bg-red-50 px-3 py-2 text-sm text-[var(--danger)]">
               {error}
             </p>
           ) : null}
@@ -66,8 +65,8 @@ export default function ForgotPasswordPage() {
         </form>
       )}
       <div className="mt-6 text-sm">
-        <Link className="text-slate-600 hover:text-slate-900" href="/login">
-          Volver a iniciar sesión
+        <Link className="text-[var(--text-muted)] hover:text-[var(--text)]" href="/login">
+          Volver a iniciar sesion
         </Link>
       </div>
     </AuthShell>

@@ -8,6 +8,17 @@ Docs:
 - `docs/SETUP.md`
 - `docs/QA_CHECKLIST.md`
 
+## Highlights
+
+- Email/password auth + Google OAuth (Supabase Auth)
+- OAuth health diagnostics endpoint (`/api/auth/oauth-health`)
+- Mobile-first patient experience (today center, smart logging, progress, chat)
+- Fast-start onboarding with partial save/resume (`/api/onboarding/fast-start`)
+- Challenges + daily missions (private clinic cohorts)
+- Error diagnostics pipeline (`/api/diagnostics/error` + `app_error_events`)
+- Error dashboard for nutri (`/app/nutri/errors`, backed by `/api/diagnostics/dashboard`)
+- Nutri board with risk prioritization and patient workflow
+
 ## Getting Started
 
 First, run the development server:

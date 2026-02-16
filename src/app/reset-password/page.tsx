@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ const schema = z
   })
   .refine((v) => v.password === v.confirm, {
     path: ["confirm"],
-    message: "Las contraseñas no coinciden.",
+    message: "Las contrasenas no coinciden.",
   });
 
 type FormValues = z.infer<typeof schema>;
@@ -54,39 +54,33 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell
-      title="Crear nueva contraseña"
-      subtitle="Elige una contraseña segura (mínimo 8 caracteres)."
+      title="Crear nueva contrasena"
+      subtitle="Elige una contrasena segura (minimo 8 caracteres)."
     >
       {!ready ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-          Abre el enlace de recuperación desde tu email para continuar.
+        <div className="rounded-[var(--radius-md)] border border-[var(--line)] bg-white p-4 text-sm text-[var(--text-muted)]">
+          Abre el enlace de recuperacion desde tu email para continuar.
         </div>
       ) : (
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">
-              Nueva contraseña
-            </label>
+            <label className="text-sm font-medium text-[var(--text)]">Nueva contrasena</label>
             <Input type="password" autoComplete="new-password" {...form.register("password")} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">
-              Repite la contraseña
-            </label>
+            <label className="text-sm font-medium text-[var(--text)]">Repite la contrasena</label>
             <Input type="password" autoComplete="new-password" {...form.register("confirm")} />
             {form.formState.errors.confirm ? (
-              <p className="text-xs text-red-600">
-                {form.formState.errors.confirm.message}
-              </p>
+              <p className="text-xs text-[var(--danger)]">{form.formState.errors.confirm.message}</p>
             ) : null}
           </div>
           {error ? (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-[var(--radius-sm)] border border-[var(--danger)]/30 bg-red-50 px-3 py-2 text-sm text-[var(--danger)]">
               {error}
             </p>
           ) : null}
           <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>
-            Guardar contraseña
+            Guardar contrasena
           </Button>
         </form>
       )}

@@ -13,7 +13,12 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "quickchart.io",
+      },
+    ],
   },
   outputFileTracingRoot: configDir,
 };

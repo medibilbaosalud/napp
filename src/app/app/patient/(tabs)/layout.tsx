@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BottomNav } from "@/components/nav/BottomNav";
+import { Atmosphere } from "@/components/ui/Atmosphere";
 
 export default async function PatientTabsLayout({
   children,
@@ -20,8 +21,9 @@ export default async function PatientTabsLayout({
   if (!patient?.onboarding_completed_at) redirect("/app/patient/onboarding");
 
   return (
-    <div className="min-h-dvh app-shell pb-24">
-      <main className="mx-auto min-h-dvh max-w-md">{children}</main>
+    <div className="min-h-dvh app-shell pb-28">
+      <Atmosphere />
+      <main className="relative z-10 mx-auto min-h-dvh max-w-md">{children}</main>
       <BottomNav />
     </div>
   );

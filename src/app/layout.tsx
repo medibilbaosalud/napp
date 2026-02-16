@@ -1,6 +1,8 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Geist_Mono, Manrope, Newsreader } from "next/font/google";
 import { cookies } from "next/headers";
+import { ClientErrorBoundary } from "@/components/diagnostics/ClientErrorBoundary";
+import { GlobalErrorListeners } from "@/components/diagnostics/GlobalErrorListeners";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -29,17 +31,25 @@ export const viewport = {
   themeColor: "#2f8f6a",
 };
 
+/**
+ * Root Layout of the application.
+ * Configures fonts, metadata, global error listeners, and error boundaries.
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
+  // Get preferred locale from cookies, default to 'es'
   const locale = cookieStore.get("mb_locale")?.value ?? "es";
+
   return (
     <html lang={locale}>
       <body className={`${manrope.variable} ${newsreader.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        <GlobalErrorListeners />
+        {/* Error Boundary ensures that client-side crashes don't break the entire app UI */}
+        <ClientErrorBoundary>{children}</ClientErrorBoundary>
       </body>
     </html>
   );

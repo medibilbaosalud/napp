@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { Plus, ShoppingBasket, Trash2 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Topbar } from "@/components/ui/Topbar";
 import { Card } from "@/components/ui/Card";
@@ -18,9 +20,7 @@ type ShoppingItemRow = {
   sort_order: number;
 };
 
-function extractSeed(
-  planData: unknown,
-): Array<{ name: string; category?: string; quantity?: string }> {
+function extractSeed(planData: unknown): Array<{ name: string; category?: string; quantity?: string }> {
   if (!planData || typeof planData !== "object") return [];
   const rec = planData as Record<string, unknown>;
   const shoppingSeed = rec.shopping_seed;
@@ -52,6 +52,20 @@ function extractSeed(
   }
   return Array.from(set).slice(0, 30).map((name) => ({ name }));
 }
+
+const container = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { staggerChildren: 0.05, delayChildren: 0.03 },
+  },
+};
+
+const itemMotion = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
 
 export default function ShoppingPage() {
   const search = useSearchParams();
@@ -102,18 +116,16 @@ export default function ShoppingPage() {
 
           const seed = extractSeed(plan?.plan_data ?? {});
           if (seed.length) {
-            const { error: itemsError } = await supabase
-              .from("shopping_list_items")
-              .insert(
-                seed.map((s, idx) => ({
-                  shopping_list_id: sl!.id,
-                  name: s.name,
-                  category: s.category ?? null,
-                  quantity: s.quantity ?? null,
-                  source: "generated",
-                  sort_order: idx,
-                })),
-              );
+            const { error: itemsError } = await supabase.from("shopping_list_items").insert(
+              seed.map((s, idx) => ({
+                shopping_list_id: sl!.id,
+                name: s.name,
+                category: s.category ?? null,
+                quantity: s.quantity ?? null,
+                source: "generated",
+                sort_order: idx,
+              })),
+            );
             if (itemsError) throw itemsError;
           }
         }
@@ -175,77 +187,99 @@ export default function ShoppingPage() {
     await supabase.from("shopping_list_items").delete().eq("id", id);
   }
 
+  const done = items.filter((it) => it.is_checked).length;
+  const total = items.length;
+  const ratio = total ? Math.round((done / total) * 100) : 0;
+
   return (
-    <div className="pb-24">
-      <Topbar title="Lista de la compra" />
-      <div className="px-4 py-4 space-y-4">
+    <div className="pb-28">
+      <Topbar title="Lista de la compra" subtitle="Editable, rapida y pensada para la semana" />
+
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-4 px-4 py-4">
         {!week ? (
-          <Card>
-            <p className="text-sm text-slate-700">Falta el parámetro de semana.</p>
-          </Card>
+          <motion.div variants={itemMotion}>
+            <Card className="border-[var(--danger)]/30 bg-red-50">
+              <p className="text-sm text-[var(--danger)]">Falta el parametro de semana.</p>
+            </Card>
+          </motion.div>
         ) : null}
 
         {error ? (
-          <Card className="border-red-200 bg-red-50">
-            <p className="text-sm text-red-700">{error}</p>
-          </Card>
+          <motion.div variants={itemMotion}>
+            <Card className="border-[var(--danger)]/30 bg-red-50">
+              <p className="text-sm text-[var(--danger)]">{error}</p>
+            </Card>
+          </motion.div>
         ) : null}
 
-        <Card>
-          <div className="flex gap-2">
-            <Input
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-              placeholder="Añadir item…"
+        <motion.div variants={itemMotion}>
+          <Card className="relative overflow-hidden">
+            <motion.div
+              className="absolute -right-7 -top-7 h-24 w-24 rounded-full bg-[var(--accent-soft)]/70"
+              animate={{ scale: [1, 1.18, 1], opacity: [0.4, 0.7, 0.4] }}
+              transition={{ duration: 7, repeat: Infinity }}
             />
-            <Button onClick={addItem} disabled={!newItem.trim() || loading}>
-              Añadir
-            </Button>
-          </div>
-          <p className="mt-2 text-xs text-slate-500">
-            Editable. Marca lo que ya tienes o compras.
-          </p>
-        </Card>
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
+                  <ShoppingBasket className="h-4 w-4 text-[var(--accent)]" />
+                  Estado de la lista
+                </div>
+                <span className="text-sm font-semibold text-[var(--text)]">{done}/{total}</span>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--accent-soft)]/50">
+                <motion.div className="h-full bg-[var(--accent)]" initial={{ width: 0 }} animate={{ width: `${ratio}%` }} transition={{ duration: 0.4 }} />
+              </div>
+              <p className="mt-2 text-xs text-[var(--text-muted)]">{ratio}% completado</p>
+            </div>
+          </Card>
+        </motion.div>
 
-        <Card>
-          {loading ? (
-            <p className="text-sm text-slate-600">Cargando…</p>
-          ) : items.length ? (
-            <ul className="space-y-3">
-              {items.map((it) => (
-                <li key={it.id} className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={it.is_checked}
-                    onChange={(e) => toggleItem(it.id, e.target.checked)}
-                  />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-slate-900">{it.name}</div>
-                    <div className="mt-1">
-                      <input
-                        className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs"
-                        value={it.quantity ?? ""}
-                        placeholder="Cantidad (opcional)"
-                        onChange={(e) => updateQty(it.id, e.target.value)}
-                      />
+        <motion.div variants={itemMotion}>
+          <Card>
+            <div className="flex gap-2">
+              <Input value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Anadir item..." />
+              <Button onClick={addItem} disabled={!newItem.trim() || loading}>
+                <Plus className="h-4 w-4" />
+                Anadir
+              </Button>
+            </div>
+            <p className="mt-2 text-xs text-[var(--text-muted)]">Marca lo que ya tienes y ajusta cantidades en vivo.</p>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemMotion}>
+          <Card>
+            {loading ? (
+              <p className="text-sm text-[var(--text-muted)]">Cargando...</p>
+            ) : items.length ? (
+              <ul className="space-y-3">
+                {items.map((it) => (
+                  <motion.li key={it.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 rounded-[var(--radius-sm)] border border-[var(--line)] bg-white p-2.5">
+                    <input type="checkbox" checked={it.is_checked} onChange={(e) => toggleItem(it.id, e.target.checked)} />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-[var(--text)]">{it.name}</div>
+                      <div className="mt-1">
+                        <input
+                          className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] px-2 py-1 text-xs text-[var(--text)]"
+                          value={it.quantity ?? ""}
+                          placeholder="Cantidad (opcional)"
+                          onChange={(e) => updateQty(it.id, e.target.value)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <button
-                    className="text-xs text-slate-500 hover:text-red-600"
-                    onClick={() => removeItem(it.id)}
-                  >
-                    Borrar
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-slate-600">
-              Aún no hay items. Añade el primero arriba.
-            </p>
-          )}
-        </Card>
-      </div>
+                    <button className="rounded-md p-1 text-[var(--text-muted)] hover:bg-red-50 hover:text-[var(--danger)]" onClick={() => removeItem(it.id)} aria-label="Borrar item">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </motion.li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-[var(--text-muted)]">Aun no hay items. Anade el primero arriba.</p>
+            )}
+          </Card>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
