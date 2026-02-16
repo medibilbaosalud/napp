@@ -24,31 +24,32 @@ export const metadata: Metadata = {
   title: "MediBilbao Salud - Nutricion",
   description:
     "Tu nutricionista contigo entre sesiones: plan claro, registro rapido y revision semanal.",
-  manifest: "/manifest.webmanifest",
 };
 
 export const viewport = {
   themeColor: "#2f8f6a",
 };
 
-/**
- * Root Layout of the application.
- * Configures fonts, metadata, global error listeners, and error boundaries.
- */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  // Get preferred locale from cookies, default to 'es'
   const locale = cookieStore.get("mb_locale")?.value ?? "es";
+  // In Vercel previews with deployment protection, manifest requests can be 401.
+  const shouldAttachManifest =
+    process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "production";
 
   return (
     <html lang={locale}>
+      <head>
+        {shouldAttachManifest ? (
+          <link rel="manifest" href="/manifest.webmanifest" crossOrigin="use-credentials" />
+        ) : null}
+      </head>
       <body className={`${manrope.variable} ${newsreader.variable} ${geistMono.variable} antialiased`}>
         <GlobalErrorListeners />
-        {/* Error Boundary ensures that client-side crashes don't break the entire app UI */}
         <ClientErrorBoundary>{children}</ClientErrorBoundary>
       </body>
     </html>
