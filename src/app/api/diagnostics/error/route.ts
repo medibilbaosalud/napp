@@ -34,10 +34,15 @@ export async function POST(request: NextRequest) {
   );
 
   const { data: userData } = await supabase.auth.getUser();
+  // Public routes can emit diagnostics before auth is established.
+  // Do not fail the request in that case to avoid noisy 500 loops.
+  if (!userData.user) {
+    return NextResponse.json({ ok: true, skipped: "unauthenticated" }, { status: 202 });
+  }
 
   const payload = parsed.data;
   const { error } = await supabase.from("app_error_events").insert({
-    user_id: userData.user?.id ?? null,
+    user_id: userData.user.id,
     route: payload.route ?? null,
     component: payload.component ?? null,
     severity: payload.severity,
@@ -51,7 +56,8 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Diagnostics should be best-effort and never break the app flow.
+    return NextResponse.json({ ok: false, skipped: "insert_failed" }, { status: 202 });
   }
 
   response = NextResponse.json({ ok: true });

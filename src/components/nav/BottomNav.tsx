@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,7 +21,7 @@ export function BottomNav() {
   return (
     <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-30">
       <div className="mx-auto max-w-md px-3 pb-3">
-        <div className="pointer-events-auto rounded-[1.3rem] border border-[var(--line)]/90 bg-[rgba(255,255,255,0.9)] p-1.5 shadow-[var(--shadow-md)] backdrop-blur">
+        <div className="pointer-events-auto rounded-[1.3rem] border border-[var(--line)]/80 bg-[rgba(255,255,255,0.88)] p-1.5 shadow-[var(--shadow-md)] backdrop-blur-xl">
           <div className="grid grid-cols-6 gap-1">
             {items.map(({ href, label, icon: Icon }) => {
               const active = pathname.startsWith(href);
@@ -30,21 +30,30 @@ export function BottomNav() {
                   key={href}
                   href={href}
                   className={cn(
-                    "relative flex flex-col items-center justify-center gap-1 rounded-[var(--radius-sm)] px-2 py-2 text-[11px] font-semibold text-[var(--text-muted)] transition-all",
+                    "relative flex flex-col items-center justify-center gap-1 rounded-[var(--radius-sm)] px-1.5 py-2 text-[10px] font-semibold tracking-wide text-[var(--text-muted)] transition-colors duration-[var(--motion-micro)]",
                     active && "text-[var(--accent-strong)]",
                   )}
                 >
                   {active ? (
                     <motion.span
                       layoutId="bottom-nav-pill"
-                      transition={{ type: "spring", stiffness: 360, damping: 32 }}
-                      className="absolute inset-0 rounded-[var(--radius-sm)] bg-[var(--accent-soft)]"
+                      transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.7 }}
+                      className="absolute inset-0 rounded-[var(--radius-sm)] bg-[var(--accent-soft)]/95"
                     />
                   ) : null}
-                  <motion.span whileTap={{ scale: 0.95 }} className="relative z-10 flex flex-col items-center gap-1">
-                    <Icon className={cn("h-5 w-5 transition-transform", active && "scale-105")} />
+                  <motion.span
+                    whileTap={{ scale: 0.94 }}
+                    className="relative z-10 flex flex-col items-center gap-1"
+                  >
+                    <Icon className={cn("h-[18px] w-[18px] transition-transform duration-[var(--motion-micro)]", active && "scale-110")} />
                     <span>{label}</span>
                   </motion.span>
+                  {active ? (
+                    <motion.span
+                      layoutId="bottom-nav-dot"
+                      className="absolute bottom-1.5 z-10 h-1 w-1 rounded-full bg-[var(--accent-strong)]"
+                    />
+                  ) : null}
                 </Link>
               );
             })}

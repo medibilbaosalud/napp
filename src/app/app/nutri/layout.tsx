@@ -1,6 +1,7 @@
-﻿import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getServerProfile } from "@/lib/auth/profile";
 import { Atmosphere } from "@/components/ui/Atmosphere";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 export default async function NutriLayout({
   children,
@@ -14,7 +15,9 @@ export default async function NutriLayout({
   return (
     <div className="min-h-dvh app-shell">
       <Atmosphere />
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10">
+        <PageTransition>{children}</PageTransition>
+      </div>
     </div>
   );
 }

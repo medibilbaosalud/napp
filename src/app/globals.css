@@ -1,22 +1,22 @@
 ﻿@import "tailwindcss";
 
 :root {
-  --bg: #f3f2ea;
-  --bg-elevated: #fcfbf6;
+  --bg: #f4f5f7;
+  --bg-elevated: #fbfcff;
   --surface: #ffffff;
-  --surface-soft: #f2f6f1;
-  --surface-tint: #ecf4ef;
-  --text: #14221d;
-  --text-muted: #4d645b;
-  --accent: #2d8a67;
-  --accent-strong: #1f7254;
-  --accent-soft: #d7efe3;
-  --line: #d4ded5;
+  --surface-soft: #f2f6f8;
+  --surface-tint: #edf4f8;
+  --text: #111827;
+  --text-muted: #5f6c7b;
+  --accent: #1d7f92;
+  --accent-strong: #0f6575;
+  --accent-soft: #d8edf2;
+  --line: #d8e0e7;
   --danger: #b13e3e;
   --warning: #c7892c;
-  --shadow-sm: 0 10px 24px rgba(14, 41, 31, 0.08);
-  --shadow-md: 0 24px 54px rgba(14, 42, 31, 0.14);
-  --shadow-lg: 0 34px 76px rgba(11, 36, 27, 0.2);
+  --shadow-sm: 0 8px 22px rgba(15, 32, 56, 0.08);
+  --shadow-md: 0 18px 44px rgba(15, 32, 56, 0.13);
+  --shadow-lg: 0 30px 70px rgba(12, 28, 48, 0.18);
   --radius-sm: 0.85rem;
   --radius-md: 1.05rem;
   --radius-lg: 1.35rem;
@@ -48,12 +48,14 @@
 body {
   min-height: 100dvh;
   background:
-    radial-gradient(circle at 12% -6%, rgba(45, 138, 103, 0.2), transparent 44%),
-    radial-gradient(circle at 100% 12%, rgba(199, 137, 44, 0.22), transparent 44%),
-    radial-gradient(circle at 18% 100%, rgba(45, 138, 103, 0.12), transparent 45%),
+    radial-gradient(circle at 10% -4%, rgba(29, 127, 146, 0.16), transparent 42%),
+    radial-gradient(circle at 100% 10%, rgba(78, 143, 206, 0.14), transparent 43%),
+    radial-gradient(circle at 16% 100%, rgba(29, 127, 146, 0.1), transparent 44%),
     var(--bg);
   color: var(--text);
   font-family: var(--font-manrope), "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -78,9 +80,9 @@ h4 {
 }
 
 .glass-panel {
-  backdrop-filter: blur(14px);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.65));
-  border-color: rgba(212, 222, 213, 0.95);
+  backdrop-filter: blur(18px) saturate(1.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.68));
+  border-color: rgba(216, 224, 231, 0.95);
 }
 
 .panel-soft {
@@ -160,7 +162,7 @@ h4 {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  border: 1px solid rgba(45, 138, 103, 0.08);
+  border: 1px solid rgba(29, 127, 146, 0.08);
   pointer-events: none;
 }
 

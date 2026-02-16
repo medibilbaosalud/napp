@@ -2,6 +2,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BottomNav } from "@/components/nav/BottomNav";
 import { Atmosphere } from "@/components/ui/Atmosphere";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 export default async function PatientTabsLayout({
   children,
@@ -23,7 +24,9 @@ export default async function PatientTabsLayout({
   return (
     <div className="min-h-dvh app-shell pb-28">
       <Atmosphere />
-      <main className="relative z-10 mx-auto min-h-dvh max-w-md">{children}</main>
+      <main className="relative z-10 mx-auto min-h-dvh max-w-md">
+        <PageTransition>{children}</PageTransition>
+      </main>
       <BottomNav />
     </div>
   );
